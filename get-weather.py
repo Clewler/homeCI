@@ -1,4 +1,3 @@
-
 import sys
 import json
 import requests
@@ -7,6 +6,11 @@ import uuid
 from elasticsearch import Elasticsearch, helpers
 
 parser = argparse.ArgumentParser(description="Get localization of my phone using google API")
+
+CONF_FILE = "conf.json"
+
+with open(CONF_FILE, mode='r') as f:
+    conf=loads(f.read())
 
 def getCityId(city_name):
     """
@@ -26,7 +30,7 @@ def setRequest(city_id,api):
     """
     request = "http://api.openweathermap.org/data/2.5/weather?id="+\
               str(city_id)+\
-              "&appid="+api
+              "&appid="+conf['token']
     response = requests.get(request)
     response = response.text
     response = json.loads(response)
@@ -35,13 +39,13 @@ def setRequest(city_id,api):
     return response
 
 def post_to_elasticsearch(response,city):
-    es = Elasticsearch([{'host':'192.168.1.20','port':9200}])
+    es = Elasticsearch([{'host':conf['es_ip'],'port':conf['es_ip']}])
     es.index(index="temp",doc_type=city,id=uuid.uuid4(), body=response)
 
 
 
 
-def main():
+    def main():
     city_id = getCityId("Szczecin")['id']
 
     response=setRequest(city_id,"f0c7c71bfe4570581ae87f1c6a9d8e2e")
