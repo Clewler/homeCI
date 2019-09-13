@@ -3,7 +3,8 @@ import sys
 import json
 import requests
 import argparse
-
+import uuid
+from elasticsearch import Elasticsearch, helpers
 
 parser = argparse.ArgumentParser(description="Get localization of my phone using google API")
 
@@ -27,16 +28,25 @@ def setRequest(city_id,api):
               str(city_id)+\
               "&appid="+api
     response = requests.get(request)
+    response = response.text
+    response = json.loads(response)
+
+
     return response
 
-def post_to_elasticsearch(response):
-    print(requests.post("http://192.168.1.20:5601/.kibana/1", data=response))
+def post_to_elasticsearch(response,city):
+    es = Elasticsearch([{'host':'192.168.1.20','port':9200}])
+    es.index(index="temp",doc_type=city,id=uuid.uuid4(), body=response)
+
+
+
+
 def main():
     city_id = getCityId("Szczecin")['id']
 
     response=setRequest(city_id,"f0c7c71bfe4570581ae87f1c6a9d8e2e")
 
-    post_to_elasticsearch(response)
+    post_to_elasticsearch(response,"Szczecin")
     pass
 
 if __name__ == '__main__':
