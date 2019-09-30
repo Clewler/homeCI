@@ -1,5 +1,5 @@
 PROJ_DIR="/proj/"
-
+##test comment
 remote_command(){
 	sshpass -p $PASSWD ssh -o "StrictHostKeyChecking no" -tt $UNAME@$DEST_IP $@
 }
