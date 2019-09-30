@@ -30,14 +30,14 @@ def setRequest(city_id,api):
     """
     request = "http://api.openweathermap.org/data/2.5/weather?id="+\
               str(city_id)+\
-              "&appid="+conf['token']
+              "&appid="+conf["weather-tracker"]['token']
     print(request)
     response = requests.get(request)
     return json.loads(response.text)
 
 def post_to_elasticsearch(body,city):
     es = Elasticsearch([{'host':conf['es_ip'],'port':conf['es_ip']}])
-    es.index(index=conf["weather-index"],doc_type=city,id=uuid.uuid4(), body=body)
+    es.index(index=conf["weather-tracker"]["weather-index"],doc_type=city,id=uuid.uuid4(), body=body)
 
 
 
