@@ -42,7 +42,6 @@ else
 fi
 
 cd ${PROJ_DIR}/$PROJECT
-git pull -r
 REF_SHA=`git log --format=format:%H -1`
 
 COMMAND="cd ${PROJ_DIR}/$PROJECT;SHA=`git log --format=format:%H -1`; echo \$SHA; exit"
