@@ -36,7 +36,9 @@ def setRequest(city_id,api):
     return json.loads(response.text)
 
 def post_to_elasticsearch(body,city):
-    es = Elasticsearch([{'host':conf['es_ip'],'port':conf['es_ip']}])
+    es = Elasticsearch(hosts=[{'host':conf['es_ip'],'port':conf['es_port']}]
+            ,http_auth=('user','u6PzFCh2GTcb'),
+            verify_certs=True)
     es.index(index=conf["weather-tracker"]["weather-index"],doc_type=city,id=uuid.uuid4(), body=body)
 
 

@@ -4,6 +4,6 @@
     "token":"f0c7c71bfe4570581ae87f1c6a9d8e2e",
     "weather-index": "weather"
   },
-  "es_ip": "192.168.1.20",
+  "es_ip": "35.229.42.102",
   "es_port": "9200"
 }
