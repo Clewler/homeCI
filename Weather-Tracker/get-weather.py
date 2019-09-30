@@ -37,7 +37,7 @@ def setRequest(city_id,api):
 
 def post_to_elasticsearch(response,city):
     es = Elasticsearch([{'host':conf['es_ip'],'port':conf['es_ip']}])
-    es.index(index="temp",doc_type=city,id=uuid.uuid4(), body=response)
+    es.index(index=conf["weather-index"],doc_type=city,id=uuid.uuid4(), body=response)
 
 
 
