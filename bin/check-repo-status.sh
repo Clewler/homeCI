@@ -55,4 +55,3 @@ if [ "$REF_SHA" = "$PROD_SHA" ]; then
 else
 	echo "Deploying new version of repo"
 fi
-
