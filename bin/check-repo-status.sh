@@ -1,16 +1,13 @@
-#!/bin/bash
-
 PROJ_DIR="/proj/"
-PROD_DIR="/prod/"
 
-#Check if sshpass was intalled
-if [ -z `dpkg -s jenkins` ]; then
-	echo "ABC"
-fi
+remote_command(){
+	sshpass -p $PASSWD ssh -o "StrictHostKeyChecking no" -tt $UNAME@$DEST_IP $@
+}
 
+REF_REPO=`cd ${PROJ_DIR}; ls ${PROJ_DIR} | grep $PROJECT || echo Not Found`
 
-REF_REPO=`ls ${PROJ_DIR} | grep $PROJECT || echo Not Found`
-PROD_REPO=`ssh  ls ${PROD_DIR} | grep $PROJECT || echo Not Found`
+COMMAND="ls ${PROJ_DIR} | grep $PROJECT || echo Not Found"
+PROD_REPO=`remote_command $COMMAND | awk -F" " '{print $1}'`
 
 PACKET_LOSS=`ping $DEST_IP -c 4 | tail -2 | head -1 | awk -F", " '{print $2}'`
 
@@ -22,36 +19,41 @@ else
     exit 1
 fi
 
-if [ "$PROD_REPO" = "Not Found" ];then
+if [ "$PROD_REPO" = "Not" ];then
 	echo "Production repo not found, clonig a new one"
-    cd ${PROD_DIR}
-    git clone https://github.com/Clewler/homeCI.git
+    COMMAND="git clone https://github.com/$USERNAME/$PROJECT.git"
+    remote_command $COMMAND
+    echo "Since we deployed newest version now. Exiting the script"
     cd -
+    exit 0
 else
 	echo "Prod repo found"
 fi
 
 if [ "$REF_REPO" = "Not Found" ];then
 	echo "Reference repo not found, clonig a new one"
-    cd ${PROJ_DIR}
-    git clone https://github.com/Clewler/homeCI.git
+    git clone https://github.com/$USERNAME/$PROJECT.git
     cd -
 else
+	cd $PROJ_DIR/$PROJECT
 	echo "Reference repo found"
+    git pull -r origin master
+    cd -
 fi
-
 
 cd ${PROJ_DIR}/$PROJECT
 git pull -r
 REF_SHA=`git log --format=format:%H -1`
 
-cd -
-cd ${PROD_DIR}/$PROJECT
-PROD_SHA=`git log --format=format:%H -1`
+COMMAND="cd ${PROJ_DIR}/$PROJECT;SHA=`git log --format=format:%H -1`; echo \$SHA; exit"
+PROD_SHA=`remote_command $COMMAND`
+PROD_SHA=`echo $PROD_SHA | rev | cut -c 2- | rev`
 
-if [ "$REF_SHA" = "$PROD_SHA" ]; then
+if [ "$PROD_SHA" = "$REF_SHA" ];then
 	echo "Latest version of Repo is deployed"
     exit 0
 else
 	echo "Deploying new version of repo"
+    COMMAND="cd $PROJECT; git pull -r origin master; exit"
+    remote_command $COMMAND
 fi
