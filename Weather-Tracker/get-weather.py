@@ -3,6 +3,11 @@ import json
 import requests
 import argparse
 import uuid
+NOT_USE=0
+try:
+    import datetime
+except:
+    NOT_USE=1
 from elasticsearch import Elasticsearch, helpers
 
 parser = argparse.ArgumentParser(description="Get localization of my phone using google API")
@@ -33,7 +38,10 @@ def setRequest(city_id,api):
               "&appid="+conf["weather-tracker"]['token']
     print(request)
     response = requests.get(request)
-    return json.loads(response.text)
+    response = json.loads(response.text)
+    if NOT_USE == 0:
+        response = response + {'datetime': datetime.datetime.now()}
+    return response
 
 def post_to_elasticsearch(body,city):
     es = Elasticsearch(hosts=[{'host':conf['es_ip'],'port':conf['es_port']}]
