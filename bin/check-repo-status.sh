@@ -63,4 +63,6 @@ else
 	echo "Deploying new version of repo"
     COMMAND="cd $PROJ_DIR/$PROJECT;echo \`git pull -r origin master\` > /dev/null; exit"
     remote_command $COMMAND
+    remote_command "reboot"
+    while ! ping -c 1 DEST_IP &>/dev/null; do :; done
 fi
