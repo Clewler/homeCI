@@ -1,6 +1,7 @@
 import sys
 import json
 import requests
+import datetime
 import argparse
 import uuid
 from elasticsearch import Elasticsearch, helpers
@@ -32,8 +33,9 @@ def setRequest(city_id,api):
               str(city_id)+\
               "&appid="+conf["weather-tracker"]['token']
     print(request)
-    response = requests.get(request)
-    return json.loads(response.text)
+    response = json.loads(requests.get(request).text)
+    response['datetime'] = datetime.datetime.now()
+    return response
 
 def post_to_elasticsearch(body,city):
     es = Elasticsearch(hosts=[{'host':conf['es_ip'],'port':conf['es_port']}]
